@@ -5,3 +5,5 @@ Before a permanent archive is created for data used in this study, SWOT and moor
 https://slocum-data.marine.rutgers.edu/erddap/files/ru32-20230330T1626-profile-sci-delayed
 and
 https://slocum-data.marine.rutgers.edu/erddap/files/ru38-20230420T1602-profile-sci-delayed
+
+If something seems to be missing, please contact the editor in order to maintain anonymity; I will try to get back to any requests for missing scripts or needed data as soon as possible!
