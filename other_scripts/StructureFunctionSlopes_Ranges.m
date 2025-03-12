@@ -1,5 +1,5 @@
 %% Data Analysis
-%% Spectral slope of average SFs from figure in SF_plot.m:
+%% Spectral slope of average SFs from figure in SF_plot*.m:
 %% Mean
 
 clc ; close all
