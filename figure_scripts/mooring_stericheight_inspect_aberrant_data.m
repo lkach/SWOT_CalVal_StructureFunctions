@@ -47,17 +47,17 @@ plot(P7.P.TIME_STERIC_HEIGHT,P7_sh_600,'.-')
 
 
 figure
-plot(S1.P.TIME_STERIC_HEIGHT,S1_sh_600 + 0*0.1,'.-'); hold on
-plot(S2.P.TIME_STERIC_HEIGHT,S2_sh_600 + 3*0.1,'.-')
-plot(S3.P.TIME_STERIC_HEIGHT,S3_sh_600 + 6*0.1,'.-')
-plot(S4.P.TIME_STERIC_HEIGHT,S4_sh_600 + 9*0.1,'.-')
+plot(S1.P.TIME_STERIC_HEIGHT,S1_sh_600 + 0*0.1*-1,'.-'); hold on
+plot(S2.P.TIME_STERIC_HEIGHT,S2_sh_600 + 3*0.1*-1,'.-')
+plot(S3.P.TIME_STERIC_HEIGHT,S3_sh_600 + 6*0.1*-1,'.-')
+plot(S4.P.TIME_STERIC_HEIGHT,S4_sh_600 + 9*0.1*-1,'.-')
 
-plot(P1.P.TIME_STERIC_HEIGHT,P1_sh_600 + 1*0.1,'.-')
-plot(P2.P.TIME_STERIC_HEIGHT,P2_sh_600 + 2*0.1,'.-')
-plot(P3.P.TIME_STERIC_HEIGHT,P3_sh_600 + 4*0.1,'.-')
-plot(P5.P.TIME_STERIC_HEIGHT,P5_sh_600 + 7*0.1,'.-')
-plot(P6.P.TIME_STERIC_HEIGHT,P6_sh_600 + 8*0.1,'.-')
-plot(P7.P.TIME_STERIC_HEIGHT,P7_sh_600 + 10*0.1,'.-')
+plot(P1.P.TIME_STERIC_HEIGHT,P1_sh_600 + 1*0.1*-1,'.-')
+plot(P2.P.TIME_STERIC_HEIGHT,P2_sh_600 + 2*0.1*-1,'.-')
+plot(P3.P.TIME_STERIC_HEIGHT,P3_sh_600 + 4*0.1*-1,'.-')
+plot(P5.P.TIME_STERIC_HEIGHT,P5_sh_600 + 7*0.1*-1,'.-')
+plot(P6.P.TIME_STERIC_HEIGHT,P6_sh_600 + 8*0.1*-1,'.-')
+plot(P7.P.TIME_STERIC_HEIGHT,P7_sh_600 + 10*0.1*-1,'.-')
 
 % %
 % close all
@@ -213,26 +213,39 @@ ylabel('mean(steric height anomaly to 600 m)')
 T_start = datenum('2023-04-01') - T0;
 T_end   = datenum('2023-07-10') - T0;
 
-close all
+% T_start = datenum('2023-05-08') - T0;
+% T_end   = datenum('2023-06-21') - T0;
+
+% close all
 
 SHA_mean = nan(length(MM_list),1);
+SHA_std = nan(length(MM_list),1);
 for ii = 1:length(MM_list)
     P_IND = eval([ MM_list{ii} '.P.TIME_STERIC_HEIGHT > T_start & ' MM_list{ii} '.P.TIME_STERIC_HEIGHT < T_end & ' ... <-- Time interval
         '[' MM_list{ii} '.P.STERIC_HEIGHT_MAX_PROF_DEPTH - ' MM_list{ii} '.P.STERIC_HEIGHT_MIN_PROF_DEPTH] > ' MM_list{ii}(1) 'P_RANGE_LIM & ' ... <-- Profiler depth requirement
         '~SPIKE_IND_NtoS{ii}']); % <-- Spike removal
     SHA_mean(ii) = mean(eval([MM_list{ii} '_sh_600(P_IND)']),'omitmissing');
+    SHA_std(ii) = std(eval([MM_list{ii} '_sh_600(P_IND)']),'omitmissing');
 end
 
 figure('Color','w')
-plot([1:length(MM_list)]', 100*SHA_mean, 'k.-','LineWidth',1.5,'MarkerSize',20)
-xticklabels(MM_list)
+% plot([1:length(MM_list)]', 100*SHA_mean, 'k.-','LineWidth',1.5,'MarkerSize',20)
+errorbar(Pseudo_location, 100*SHA_mean, 100*SHA_std, 'k.-','LineWidth',1.5,'MarkerSize',20); hold on
+
+% Optional for evaluation: linear fit.
+plot(Pseudo_location, [ones(size(Pseudo_location')),Pseudo_location']*[[ones(size(Pseudo_location')),Pseudo_location']\[100*SHA_mean]],'r.-')
+
+MM_list_withP4 = {'S1','P1','P2','S2','P3', '(P4)' ,'S3','P5','P6','S4','P7'};;
+xticklabels(MM_list_withP4)
 title('Mean of 600m steric height anomaly')
 ylabel('cm')
 
 set(gca,'FontSize',16, ...
-        'XLim',[1 10],...
-        'YLim',[-7 1])
-set(gcf,'Position',[-1439         622         376         189])
+        ...'XLim',[1 10],...
+        'YLim',[-10 3])
+% set(gcf,'Position',[-1439         622         376         189])
+% set(gcf,'Position',[1   525   514   272])
+set(gcf,'Position',[1   525   551   272])
 
 INPUT = input(['Do you want to save this figure? Enter any number for "yes" or\n push ' ...
     '"Enter" with a blank input for "No".\n']);
@@ -241,32 +254,59 @@ if isempty(INPUT)
     disp(['Image not saved'])
 else
     figure(1)
+    % exportgraphics(gcf,...
+    %     '/Users/kachelein/Documents/JPL/papers/my_work/CalVal_StructureFunctions/figures/extra_FigG.pdf',...
+    %     'BackgroundColor','none','ContentType','vector')
+    % disp(['Image saved'])
+
+    % Post-revisions:
     exportgraphics(gcf,...
-        '/Users/kachelein/Documents/JPL/papers/my_work/CalVal_StructureFunctions/figures/extra_FigG.pdf',...
+        '/Users/kachelein/Documents/JPL/papers/my_work/CalVal_StructureFunctions/REV1/extra_FigG.pdf',...
         'BackgroundColor','none','ContentType','vector')
     disp(['Image saved'])
 end
 
 %% Data in SWOT cal/val window
-figure
-plot(S1.P.TIME_STERIC_HEIGHT(S1.P.TIME_STERIC_HEIGHT >= T_start & S1.P.TIME_STERIC_HEIGHT <= T_end), ...
-    S1_sh_600(S1.P.TIME_STERIC_HEIGHT >= T_start & S1.P.TIME_STERIC_HEIGHT <= T_end) + 0*0.1,'.-'); hold on
-plot(S2.P.TIME_STERIC_HEIGHT(S2.P.TIME_STERIC_HEIGHT >= T_start & S2.P.TIME_STERIC_HEIGHT <= T_end), ...
-    S2_sh_600(S2.P.TIME_STERIC_HEIGHT >= T_start & S2.P.TIME_STERIC_HEIGHT <= T_end) + 3*0.1,'.-')
-plot(S3.P.TIME_STERIC_HEIGHT(S3.P.TIME_STERIC_HEIGHT >= T_start & S3.P.TIME_STERIC_HEIGHT <= T_end), ...
-    S3_sh_600(S3.P.TIME_STERIC_HEIGHT >= T_start & S3.P.TIME_STERIC_HEIGHT <= T_end) + 6*0.1,'.-')
-plot(S4.P.TIME_STERIC_HEIGHT(S4.P.TIME_STERIC_HEIGHT >= T_start & S4.P.TIME_STERIC_HEIGHT <= T_end), ...
-    S4_sh_600(S4.P.TIME_STERIC_HEIGHT >= T_start & S4.P.TIME_STERIC_HEIGHT <= T_end) + 9*0.1,'.-')
 
-plot(P1.P.TIME_STERIC_HEIGHT(P1.P.TIME_STERIC_HEIGHT >= T_start & P1.P.TIME_STERIC_HEIGHT <= T_end), ...
-    P1_sh_600(P1.P.TIME_STERIC_HEIGHT >= T_start & P1.P.TIME_STERIC_HEIGHT <= T_end) + 1*0.1,'.-')
-plot(P2.P.TIME_STERIC_HEIGHT(P2.P.TIME_STERIC_HEIGHT >= T_start & P2.P.TIME_STERIC_HEIGHT <= T_end), ...
-    P2_sh_600(P2.P.TIME_STERIC_HEIGHT >= T_start & P2.P.TIME_STERIC_HEIGHT <= T_end) + 2*0.1,'.-')
-plot(P3.P.TIME_STERIC_HEIGHT(P3.P.TIME_STERIC_HEIGHT >= T_start & P3.P.TIME_STERIC_HEIGHT <= T_end), ...
-    P3_sh_600(P3.P.TIME_STERIC_HEIGHT >= T_start & P3.P.TIME_STERIC_HEIGHT <= T_end) + 4*0.1,'.-')
-plot(P5.P.TIME_STERIC_HEIGHT(P5.P.TIME_STERIC_HEIGHT >= T_start & P5.P.TIME_STERIC_HEIGHT <= T_end), ...
-    P5_sh_600(P5.P.TIME_STERIC_HEIGHT >= T_start & P5.P.TIME_STERIC_HEIGHT <= T_end) + 7*0.1,'.-')
-plot(P6.P.TIME_STERIC_HEIGHT(P6.P.TIME_STERIC_HEIGHT >= T_start & P6.P.TIME_STERIC_HEIGHT <= T_end), ...
-    P6_sh_600(P6.P.TIME_STERIC_HEIGHT >= T_start & P6.P.TIME_STERIC_HEIGHT <= T_end) + 8*0.1,'.-')
-plot(P7.P.TIME_STERIC_HEIGHT(P7.P.TIME_STERIC_HEIGHT >= T_start & P7.P.TIME_STERIC_HEIGHT <= T_end), ...
-    P7_sh_600(P7.P.TIME_STERIC_HEIGHT >= T_start & P7.P.TIME_STERIC_HEIGHT <= T_end) + 10*0.1,'.-')
+close all
+
+T1 = datenum('2023-03-28');
+
+figure
+plot(T0 + S1.P.TIME_STERIC_HEIGHT(S1.P.TIME_STERIC_HEIGHT >= T_start & S1.P.TIME_STERIC_HEIGHT <= T_end), ...
+    S1_sh_600(S1.P.TIME_STERIC_HEIGHT >= T_start & S1.P.TIME_STERIC_HEIGHT <= T_end) + 0*0.1*-1,'.-'); hold on
+plot(T0 + S2.P.TIME_STERIC_HEIGHT(S2.P.TIME_STERIC_HEIGHT >= T_start & S2.P.TIME_STERIC_HEIGHT <= T_end), ...
+    S2_sh_600(S2.P.TIME_STERIC_HEIGHT >= T_start & S2.P.TIME_STERIC_HEIGHT <= T_end) + 3*0.1*-1,'.-')
+plot(T0 + S3.P.TIME_STERIC_HEIGHT(S3.P.TIME_STERIC_HEIGHT >= T_start & S3.P.TIME_STERIC_HEIGHT <= T_end), ...
+    S3_sh_600(S3.P.TIME_STERIC_HEIGHT >= T_start & S3.P.TIME_STERIC_HEIGHT <= T_end) + 6*0.1*-1,'.-')
+plot(T0 + S4.P.TIME_STERIC_HEIGHT(S4.P.TIME_STERIC_HEIGHT >= T_start & S4.P.TIME_STERIC_HEIGHT <= T_end), ...
+    S4_sh_600(S4.P.TIME_STERIC_HEIGHT >= T_start & S4.P.TIME_STERIC_HEIGHT <= T_end) + 9*0.1*-1,'.-')
+text(T1,0*0.1*-1,'S1'); text(T1,3*0.1*-1,'S2'); text(T1,6*0.1*-1,'S3'); text(T1,9*0.1*-1,'S4')
+
+plot(T0 + P1.P.TIME_STERIC_HEIGHT(P1.P.TIME_STERIC_HEIGHT >= T_start & P1.P.TIME_STERIC_HEIGHT <= T_end), ...
+    P1_sh_600(P1.P.TIME_STERIC_HEIGHT >= T_start & P1.P.TIME_STERIC_HEIGHT <= T_end) + 1*0.1*-1,'.-')
+plot(T0 + P2.P.TIME_STERIC_HEIGHT(P2.P.TIME_STERIC_HEIGHT >= T_start & P2.P.TIME_STERIC_HEIGHT <= T_end), ...
+    P2_sh_600(P2.P.TIME_STERIC_HEIGHT >= T_start & P2.P.TIME_STERIC_HEIGHT <= T_end) + 2*0.1*-1,'.-')
+plot(T0 + P3.P.TIME_STERIC_HEIGHT(P3.P.TIME_STERIC_HEIGHT >= T_start & P3.P.TIME_STERIC_HEIGHT <= T_end), ...
+    P3_sh_600(P3.P.TIME_STERIC_HEIGHT >= T_start & P3.P.TIME_STERIC_HEIGHT <= T_end) + 4*0.1*-1,'.-')
+plot(T0 + P5.P.TIME_STERIC_HEIGHT(P5.P.TIME_STERIC_HEIGHT >= T_start & P5.P.TIME_STERIC_HEIGHT <= T_end), ...
+    P5_sh_600(P5.P.TIME_STERIC_HEIGHT >= T_start & P5.P.TIME_STERIC_HEIGHT <= T_end) + 7*0.1*-1,'.-')
+plot(T0 + P6.P.TIME_STERIC_HEIGHT(P6.P.TIME_STERIC_HEIGHT >= T_start & P6.P.TIME_STERIC_HEIGHT <= T_end), ...
+    P6_sh_600(P6.P.TIME_STERIC_HEIGHT >= T_start & P6.P.TIME_STERIC_HEIGHT <= T_end) + 8*0.1*-1,'.-')
+plot(T0 + P7.P.TIME_STERIC_HEIGHT(P7.P.TIME_STERIC_HEIGHT >= T_start & P7.P.TIME_STERIC_HEIGHT <= T_end), ...
+    P7_sh_600(P7.P.TIME_STERIC_HEIGHT >= T_start & P7.P.TIME_STERIC_HEIGHT <= T_end) + 10*0.1*-1,'.-')
+text(T1,1*0.1*-1,'P1');text(T1,2*0.1*-1,'P2');text(T1,4*0.1*-1,'P3');text(T1,7*0.1*-1,'P5');
+text(T1,8*0.1*-1,'P6');text(T1,10*0.1*-1,'P7');                   text(T1,5*0.1*-1,'(P4)');
+yticklabels({})
+datetick('x')
+
+figure
+PLOTTED_MOORINGS = 1:length(MM_list);[2 6];
+for ii = PLOTTED_MOORINGS % 1:length(MM_list)
+    P_IND = eval([ MM_list{ii} '.P.TIME_STERIC_HEIGHT > T_start & ' MM_list{ii} '.P.TIME_STERIC_HEIGHT < T_end & ' ... <-- Time interval
+        '[' MM_list{ii} '.P.STERIC_HEIGHT_MAX_PROF_DEPTH - ' MM_list{ii} '.P.STERIC_HEIGHT_MIN_PROF_DEPTH] > ' MM_list{ii}(1) 'P_RANGE_LIM & ' ... <-- Profiler depth requirement
+        '~SPIKE_IND_NtoS{ii}']); % <-- Spike removal
+    plot(T0 + eval([MM_list{ii} '.P.TIME_STERIC_HEIGHT(P_IND)']), eval([MM_list{ii} '_sh_600(P_IND)']), '.-'); hold on
+end
+datetick('x')
+legend(MM_list{PLOTTED_MOORINGS})

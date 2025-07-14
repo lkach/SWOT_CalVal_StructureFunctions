@@ -3,7 +3,12 @@
 
 % SWOT = load('/Users/kachelein/Documents/JPL/papers/my_work/CalVal_StructureFunctions/data/SWOTdata_CCS.mat',...
 %             'time','ssha_karin_2','ssha_karin_2_qual','name','lat','lon','internal_tide_hret','height_cor_xover','height_cor_xover_qual');
-SWOT = load('/Users/kachelein/Documents/JPL/papers/my_work/CalVal_StructureFunctions/data/SWOTdata_CCS_33_385.mat',... More limited latitude range than above
+
+% SWOT = load('/Users/kachelein/Documents/JPL/papers/my_work/CalVal_StructureFunctions/data/SWOTdata_CCS_NoFirstWeek_33_385.mat',... More limited latitude range than above, excludes first week of April
+%             'time','ssha_karin_2','ssha_karin_2_qual','name','lat','lon', ...
+%             'internal_tide_hret','height_cor_xover','height_cor_xover_qual','cross_track_distance');
+
+SWOT = load('/Users/kachelein/Documents/JPL/papers/my_work/CalVal_StructureFunctions/data/SWOTdata_CCS_33_385.mat',... More limited latitude range than above, includes first week of April
             'time','ssha_karin_2','ssha_karin_2_qual','name','lat','lon', ...
             'internal_tide_hret','height_cor_xover','height_cor_xover_qual','cross_track_distance');
 warning('Be sure to download the updated version with SWH when it is done processing on the server.')
@@ -39,16 +44,23 @@ close all
 
 figure
 
-for IND = 1:length(SWOT.time)
+% for IND = 1:length(SWOT.time)
+for IND = [2:28 30:97 99:115 117:172 175:length(SWOT.time)]
     DATA = [SWOT.ssha_karin_2{IND} + SWOT.internal_tide_hret{IND} + SWOT.height_cor_xover{IND}].*...
            [~(SWOT.ssha_karin_2_qual{IND} + SWOT.height_cor_xover_qual{IND})./~(SWOT.ssha_karin_2_qual{IND} + SWOT.height_cor_xover_qual{IND})];
 
     pcolor(SWOT.lon{IND}, SWOT.lat{IND}, DATA); shading flat; hold on
-    title(num2str(IND))
-    set(gca,'XLim',[-132 -119],'YLim',[29.5 50.5])
+    % title(num2str(IND))
+    title(datestr(mean(SWOT.time{IND},'omitnan')))
+    % set(gca,'XLim',[-132 -119],'YLim',[29.5 50.5])
+    set(gca,'XLim',[-127 -123.75],'YLim',[32.75 39])
+
     xlabel('LON'); ylabel('LAT')
 
+    set(gcf,"Position",[-895   271   416   540])
+
     pause(.1)
+    % pause(2)
 end
 
 
